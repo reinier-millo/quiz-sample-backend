@@ -1,0 +1,9 @@
+.idea
+.vscode
+.gitmodules
+.nyc_output
+.env
+build
+dist
+node_modules
+coverage
