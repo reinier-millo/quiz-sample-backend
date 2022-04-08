@@ -7,7 +7,7 @@
  */
 import { CRUD, IQueryParameters, SERVER_ERRORS, Tokens } from "@ecualead/server";
 import { AuthDocument, AuthModel } from "@/models/auth";
-import { AccountCtrl } from "./account";
+import { AccountCtrl } from "@/controllers/account";
 import { AccountDocument } from "@/models/account";
 import { ERRORS } from "@/constants/error";
 

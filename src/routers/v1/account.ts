@@ -79,7 +79,6 @@ router.post(
 router.delete(
   "/logout",
   AuthMiddleware.validateAuth(),
-  Validator.joi(RegisterValidation),
   (_req: Request, res: Response, next: NextFunction) => {
     AuthCtrl.delete({ token: res.locals["token"] })
       .then(() => {
@@ -101,7 +100,6 @@ router.delete(
 router.get(
   "/",
   AuthMiddleware.validateAuth(),
-  Validator.joi(RegisterValidation),
   (_req: Request, res: Response, next: NextFunction) => {
     res.locals["response"] = res.locals["account"];
     next();
