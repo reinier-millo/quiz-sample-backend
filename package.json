@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "deploy": "npm run build && docker build -t lm-project .",
+    "deploy": "npm run build && docker build -t quiz-sample .",
     "build": "tsc",
     "dev": "concurrently --kill-others \"npm run watch-ts\"",
     "start-dev": "nodemon dist/index.js",
