@@ -25,5 +25,20 @@ export const ERRORS = {
     value: 1003,
     str: "not authenticated",
     status: HTTP_STATUS.HTTP_4XX_UNAUTHORIZED
-  }
+  },
+  MIN_OPTIONS: {
+    value: 1004,
+    str: "min options",
+    status: HTTP_STATUS.HTTP_4XX_NOT_ACCEPTABLE
+  },
+  MAX_OPTIONS: {
+    value: 1005,
+    str: "max options",
+    status: HTTP_STATUS.HTTP_4XX_NOT_ACCEPTABLE
+  },
+  MULTIPLE_VALID_NOT_SUPPORTED: {
+    value: 1006,
+    str: "multiple valid not supported",
+    status: HTTP_STATUS.HTTP_4XX_NOT_ACCEPTABLE
+  },
 };
