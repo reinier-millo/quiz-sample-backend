@@ -40,7 +40,7 @@
     "no-else-return": 2,
     "no-empty-function": 2,
     "no-multi-spaces": 2,
-    "no-use-before-define": 1,
+    "no-use-before-define": 0,
     "no-duplicate-imports": [
       "error",
       {
