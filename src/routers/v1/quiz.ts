@@ -143,7 +143,6 @@ router.get(
  */
 router.get(
   "/:id",
-  AuthMiddleware.validateAuth(),
   Validator.joi(ValidateObjectId, "params"),
   (req: Request, res: Response, next: NextFunction) => {
     QuizCtrl.fetchDetails(req.params.id)
