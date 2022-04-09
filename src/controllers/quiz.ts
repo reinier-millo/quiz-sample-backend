@@ -10,7 +10,7 @@ import { QuizDocument, QuizModel } from "@/models/quiz";
 import mongoose, { AggregationCursor } from "mongoose";
 import { QUESTION_TYPE } from "@/constants/quiz";
 import { QuestionCtrl } from "@/controllers/question";
-import { AnyRecord } from "dns";
+import { shuffle } from "@/utils/array";
 
 export interface IQuizQuestionOptionDetail {
   id: string;
@@ -100,6 +100,10 @@ class Quiz extends CRUD<QuizDocument> {
       /* Apply the pipeline to the data model */
       QuizModel.aggregate(pipeline)
         .then((values: IQuizDetail[]) => {
+          values[0].questions.forEach((question) => {
+            shuffle(question.options);
+          });
+          shuffle(values[0].questions);
           resolve(values[0]);
         })
         .catch(reject);
