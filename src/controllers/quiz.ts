@@ -75,6 +75,8 @@ class Quiz extends CRUD<QuizDocument> {
                   _id: 0,
                   id: "$_id",
                   description: 1,
+                  success: 1,
+                  fail: 1,
                   "options._id": 1,
                   "options.value": 1,
                   type: 1
