@@ -9,7 +9,7 @@ import { Joi } from "@ecualead/server";
 
 export const QuizValidation = Joi.object().keys({
   name: Joi.string().required(),
-  description: Joi.string().allow("").optional(),
+  description: Joi.string().allow("").optional()
 });
 
 export const QuestionOptionValidation = Joi.object().keys({
@@ -24,10 +24,15 @@ export const QuestionValidation = Joi.object().keys({
 });
 
 export const QuestionUpdateValidation = Joi.object().keys({
-  description: Joi.string().required(),
+  description: Joi.string().required()
 });
 
 export const ValidateOptionObjectId = Joi.object().keys({
   id: Joi.objectId().required(),
   option: Joi.objectId().required()
+});
+
+export const ParticipationValidation = Joi.object().keys({
+  question: Joi.objectId().required(),
+  responses: Joi.array().items(Joi.objectId()).min(1).max(10).required()
 });

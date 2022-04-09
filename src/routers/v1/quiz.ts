@@ -15,10 +15,12 @@ import {
 import { NextFunction, Request, Response, Router } from "express";
 import mongoose from "mongoose";
 import { AuthMiddleware } from "@/middlewares/auth.middleware";
-import { QuizValidation } from "@/validators/quiz";
+import { ParticipationValidation, QuizValidation } from "@/validators/quiz";
 import { IQuizDetail, QuizCtrl } from "@/controllers/quiz";
 import { QuizDocument } from "@/models/quiz";
-
+import { QuestionDocument } from "@/models/question";
+import { QuestionCtrl } from "@/controllers/question";
+import { AccountCtrl } from "@/controllers/account";
 
 /* Create router object */
 const router = Router();
@@ -38,11 +40,13 @@ router.post(
       name: req.body.name,
       description: req.body.description,
       owner: res.locals["account"]._id,
-      status: SERVER_STATUS.ENABLED,
-    }).then((quiz: QuizDocument) => {
-      res.locals["response"] = { id: quiz.id };
-      next();
-    }).catch(next);
+      status: SERVER_STATUS.ENABLED
+    })
+      .then((quiz: QuizDocument) => {
+        res.locals["response"] = { id: quiz.id };
+        next();
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -60,17 +64,22 @@ router.put(
   Validator.joi(ValidateObjectId, "params"),
   Validator.joi(QuizValidation),
   (req: Request, res: Response, next: NextFunction) => {
-    QuizCtrl.update({
-      _id: new mongoose.Types.ObjectId(req.params.id),
-      owner: res.locals["account"]._id,
-      status: SERVER_STATUS.ENABLED,
-    }, {
-      name: req.body.name,
-      description: req.body.description,
-    }).then((quiz: QuizDocument) => {
-      res.locals["response"] = { id: quiz.id };
-      next();
-    }).catch(next);
+    QuizCtrl.update(
+      {
+        _id: new mongoose.Types.ObjectId(req.params.id),
+        owner: res.locals["account"]._id,
+        status: SERVER_STATUS.ENABLED
+      },
+      {
+        name: req.body.name,
+        description: req.body.description
+      }
+    )
+      .then((quiz: QuizDocument) => {
+        res.locals["response"] = { id: quiz.id };
+        next();
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -90,11 +99,13 @@ router.delete(
     QuizCtrl.delete({
       _id: new mongoose.Types.ObjectId(req.params.id),
       owner: res.locals["account"]._id,
-      status: SERVER_STATUS.ENABLED,
-    }).then((quiz: QuizDocument) => {
-      res.locals["response"] = { id: quiz.id };
-      next();
-    }).catch(next);
+      status: SERVER_STATUS.ENABLED
+    })
+      .then((quiz: QuizDocument) => {
+        res.locals["response"] = { id: quiz.id };
+        next();
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -110,9 +121,9 @@ router.get(
   "/my",
   AuthMiddleware.validateAuth(),
   (_req: Request, res: Response, _next: NextFunction) => {
-    QuizCtrl.fetchAll({ owner: res.locals["account"]._id })
+    QuizCtrl.fetchAllQuizes({ owner: res.locals["account"]._id })
       .pipe(Streams.stringify())
-      .pipe(res.type("json"))
+      .pipe(res.type("json"));
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -127,9 +138,7 @@ router.get(
 router.get(
   "/",
   (_req: Request, res: Response, _next: NextFunction) => {
-    QuizCtrl.fetchAll({})
-      .pipe(Streams.stringify())
-      .pipe(res.type("json"))
+    QuizCtrl.fetchAllQuizes().pipe(Streams.stringify()).pipe(res.type("json"));
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -149,7 +158,79 @@ router.get(
       .then((quiz: IQuizDetail) => {
         res.locals["response"] = quiz;
         next();
-      }).catch(next);
+      })
+      .catch(next);
+  },
+  ResponseHandler.error,
+  ResponseHandler.success
+);
+
+/**
+ * @api {post} /v1/quiz/:id/participate Participate in one quiz responding a question
+ * @apiVersion 1.0.0
+ * @apiName ParticipateQuiz
+ * @apiGroup Quiz
+ */
+router.post(
+  "/:id/participate",
+  Validator.joi(ValidateObjectId, "params"),
+  Validator.joi(ParticipationValidation),
+  AuthMiddleware.validateAuth(),
+  (err: any, req: Request, res: Response, next: NextFunction) => {
+    next();
+  },
+  (req: Request, res: Response, next: NextFunction) => {
+    QuestionCtrl.fetch(
+      {
+        _id: new mongoose.Types.ObjectId(req.body.question),
+        quiz: new mongoose.Types.ObjectId(req.params.id)
+      },
+      null,
+      ["quiz"]
+    )
+      .then((question: QuestionDocument) => {
+        const results = question.validateResult(req.body.responses);
+        const success = results.found;
+        const fail = results.matches - results.found + req.body.responses.length - results.found;
+
+        QuestionCtrl.update({ _id: question._id }, null, { $inc: { success: success, fail: fail } })
+          .catch(() => {
+            /* Prevent error raise */
+          })
+          .finally(() => {
+            res.locals["response"] = {
+              id: question.id,
+              success: success,
+              fail: fail,
+              options: question.options.map((obj: any) => {
+                return {
+                  id: obj._id.toString(),
+                  value: obj.value,
+                  valid: obj.valid
+                };
+              })
+            };
+
+            next();
+          });
+      })
+      .catch(next);
+  },
+  (req: Request, res: Response, next: NextFunction) => {
+    if (!res.locals["account"]._id) {
+      return next();
+    }
+
+    /* Update user statistics */
+    AccountCtrl.update({ _id: res.locals["account"]._id }, null, {
+      $inc: { success: res.locals["response"].success, fail: res.locals["response"].fail }
+    })
+      .catch(() => {
+        /* Prevent error raise */
+      })
+      .finally(() => {
+        next();
+      });
   },
   ResponseHandler.error,
   ResponseHandler.success
