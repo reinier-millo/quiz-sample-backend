@@ -60,7 +60,9 @@ router.post(
           name: account.name,
           about: account.about,
           email: account.email,
-          token: authToken.token
+          token: authToken.token,
+          success: account.success,
+          fail: account.fail
         };
         next();
       })
