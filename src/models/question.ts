@@ -11,6 +11,11 @@ import { prop, getModelForClass, DocumentType, Ref } from "@typegoose/typegoose"
 import mongoose from "mongoose";
 import { Quiz } from "@/models/quiz";
 
+export interface IValidationResult {
+  matches: number;
+  found: number;
+}
+
 class QuestionOption {
   @prop({ required: true })
   value!: string;
@@ -32,6 +37,12 @@ export class Question extends BaseModel {
   @prop({ required: true, enum: QUESTION_TYPE, default: QUESTION_TYPE.SIMPLE })
   type?: QUESTION_TYPE;
 
+  @prop({ default: 0 })
+  fail?: number;
+
+  @prop({ default: 0 })
+  success?: number;
+
   /**
    * Get the mongoose data model
    */
@@ -52,6 +63,8 @@ export class Question extends BaseModel {
                 return { id: option._id, value: option.value, valid: option.valid };
               }),
               type: ret.type,
+              sucess: ret.success,
+              fail: ret.fail,
               createdAt: ret.createdAt
             };
           }
@@ -59,6 +72,29 @@ export class Question extends BaseModel {
       },
       options: { automaticName: false }
     });
+  }
+
+  /**
+   * Validate how mamny match have a solution given by the user
+   *
+   * @param results
+   * @returns
+   */
+  public validateResult?(results: string[]): IValidationResult {
+    const realResults: string[] = this.options
+      .filter((value) => value.valid)
+      .map((value: any) => value._id.toString());
+    let found = 0;
+    results.forEach((value) => {
+      if (realResults.indexOf(value) >= 0) {
+        found++;
+      }
+    });
+
+    return {
+      matches: realResults.length,
+      found: found
+    };
   }
 }
 

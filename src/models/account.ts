@@ -26,16 +26,17 @@ import mongoose from "mongoose";
   });
 })
 @pre<Account>("findOneAndUpdate", function (next) {
-  if (!(this.getUpdate() as any)["$set"]["password"]) {
+  const update: any = this.getUpdate();
+  if (!update["$set"]["password"]) {
     next();
   }
 
   /* Update the user crypt password */
-  hash((this.getUpdate() as any)["$set"]["password"], 10, (err: mongoose.Error, hash) => {
+  hash(update["$set"]["password"], 10, (err: mongoose.Error, hash) => {
     if (err) {
       return next(err);
     }
-    (this.getUpdate() as any)["$set"]["password"] = hash;
+    update["$set"]["password"] = hash;
     next();
   });
 })
@@ -53,6 +54,12 @@ export class Account extends BaseModel {
   @prop({ required: true })
   password!: string;
 
+  @prop({ default: 0 })
+  fail?: number;
+
+  @prop({ default: 0 })
+  success?: number;
+
   /**
    * Get the mongoose data model
    */
@@ -69,7 +76,9 @@ export class Account extends BaseModel {
               uid: ret.id,
               name: ret.name,
               about: ret.about,
-              email: ret.email
+              email: ret.email,
+              sucess: ret.success,
+              fail: ret.fail
             };
           }
         }
