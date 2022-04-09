@@ -1,0 +1,15 @@
+{
+  "name": "quiz_backend",
+  "version": "1.0.0",
+  "description": "Quiz Sample Backend API",
+  "title": "Quiz Sample API documentation",
+  "url": "https://quiz-api.reiniermillo.info",
+  "header": {
+    "title": "Quiz Sample API documentation",
+    "filename": "README.md"
+  },
+  "template": {
+    "withCompare": false,
+    "withGenerator": true
+  }
+}
