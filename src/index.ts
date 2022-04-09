@@ -24,5 +24,5 @@ const clusterServer = ClusterServer.setup();
 clusterServer.run({
   "/v1/account": AccountRouter,
   "/v1/quiz": QuizRouter,
-  "/v1/question": QuestionRouter,
+  "/v1/question": QuestionRouter
 });

@@ -37,24 +37,29 @@ class Question extends CRUD<QuestionDocument> {
       QuestionModel.updateMany({ quiz: quiz }, { $set: { status: SERVER_STATUS.SOFT_DELETE } })
         .then(() => {
           resolve();
-        }).catch(reject);
+        })
+        .catch(reject);
     });
   }
 
   /**
    * Add an option response to question
-   * 
-   * @param question 
-   * @param value 
-   * @param valid 
-   * @returns 
+   *
+   * @param question
+   * @param value
+   * @param valid
+   * @returns
    */
-  public addOption(question: mongoose.Types.ObjectId, value: string, valid = false): Promise<QuestionDocument> {
+  public addOption(
+    question: mongoose.Types.ObjectId,
+    value: string,
+    valid = false
+  ): Promise<QuestionDocument> {
     return this.update({ _id: question }, null, {
       $push: {
         options: {
           value: value,
-          valid: valid,
+          valid: valid
         }
       }
     });
@@ -62,38 +67,52 @@ class Question extends CRUD<QuestionDocument> {
 
   /**
    * Delete an option response to question
-   * 
-   * @param question 
+   *
+   * @param question
    * @param option
-   * @returns 
+   * @returns
    */
-  public updateOption(question: mongoose.Types.ObjectId, option: string, value: string, valid = false): Promise<QuestionDocument> {
+  public updateOption(
+    question: mongoose.Types.ObjectId,
+    option: string,
+    value: string,
+    valid = false
+  ): Promise<QuestionDocument> {
     return new Promise<QuestionDocument>((resolve, reject) => {
-      QuestionModel.findOneAndUpdate({
-        _id: question,
-        "options._id": new mongoose.Types.ObjectId(option)
-      }, {
-        $set: {
-          "options.$": { _id: new mongoose.Types.ObjectId(option), value: value, valid: valid }
-        }
-      }, { new: true }).then((question: QuestionDocument) => {
-        if (!question) {
-          return reject({ boError: SERVER_ERRORS.OBJECT_NOT_FOUND });
-        }
+      QuestionModel.findOneAndUpdate(
+        {
+          _id: question,
+          "options._id": new mongoose.Types.ObjectId(option)
+        },
+        {
+          $set: {
+            "options.$": { _id: new mongoose.Types.ObjectId(option), value: value, valid: valid }
+          }
+        },
+        { new: true }
+      )
+        .then((question: QuestionDocument) => {
+          if (!question) {
+            return reject({ boError: SERVER_ERRORS.OBJECT_NOT_FOUND });
+          }
 
-        resolve(question);
-      }).catch(reject);
+          resolve(question);
+        })
+        .catch(reject);
     });
   }
 
   /**
    * Delete an option response to question
-   * 
-   * @param question 
+   *
+   * @param question
    * @param option
-   * @returns 
+   * @returns
    */
-  public deleteOption(question: mongoose.Types.ObjectId, option: string): Promise<QuestionDocument> {
+  public deleteOption(
+    question: mongoose.Types.ObjectId,
+    option: string
+  ): Promise<QuestionDocument> {
     return this.update({ _id: question }, null, {
       $pull: {
         options: { _id: new mongoose.Types.ObjectId(option) }
@@ -103,5 +122,3 @@ class Question extends CRUD<QuestionDocument> {
 }
 
 export const QuestionCtrl = Question.shared;
-
-

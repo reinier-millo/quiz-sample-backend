@@ -12,7 +12,12 @@ import { QuizCtrl } from "@/controllers/quiz";
 import { AuthMiddleware } from "@/middlewares/auth.middleware";
 import { QuestionDocument } from "@/models/question";
 import { QuizDocument } from "@/models/quiz";
-import { QuestionOptionValidation, QuestionUpdateValidation, QuestionValidation, ValidateOptionObjectId } from "@/validators/quiz";
+import {
+  QuestionOptionValidation,
+  QuestionUpdateValidation,
+  QuestionValidation,
+  ValidateOptionObjectId
+} from "@/validators/quiz";
 import {
   ResponseHandler,
   SERVER_STATUS,
@@ -22,7 +27,6 @@ import {
 } from "@ecualead/server";
 import { NextFunction, Request, Response, Router } from "express";
 import mongoose from "mongoose";
-
 
 /* Create router object */
 const router = Router({ mergeParams: true });
@@ -47,12 +51,15 @@ router.post(
           type: req.body.type,
           options: req.body.options,
           owner: res.locals["account"]._id,
-          status: SERVER_STATUS.ENABLED,
-        }).then((question: QuestionDocument) => {
-          res.locals["response"] = { id: question.id };
-          next();
-        }).catch(next);
-      }).catch(next);
+          status: SERVER_STATUS.ENABLED
+        })
+          .then((question: QuestionDocument) => {
+            res.locals["response"] = { id: question.id };
+            next();
+          })
+          .catch(next);
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -70,11 +77,15 @@ router.put(
   Validator.joi(ValidateObjectId, "params"),
   Validator.joi(QuestionUpdateValidation),
   (req: Request, res: Response, next: NextFunction) => {
-    QuestionCtrl.update({ _id: req.params.id, owner: res.locals["account"]._id }, { description: req.body.description })
+    QuestionCtrl.update(
+      { _id: req.params.id, owner: res.locals["account"]._id },
+      { description: req.body.description }
+    )
       .then((question: QuestionDocument) => {
         res.locals["response"] = { id: question.id };
         next();
-      }).catch(next);
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -94,11 +105,13 @@ router.delete(
     QuestionCtrl.delete({
       _id: new mongoose.Types.ObjectId(req.params.id),
       owner: res.locals["account"]._id,
-      status: SERVER_STATUS.ENABLED,
-    }).then((question: QuestionDocument) => {
-      res.locals["response"] = { id: question.id };
-      next();
-    }).catch(next);
+      status: SERVER_STATUS.ENABLED
+    })
+      .then((question: QuestionDocument) => {
+        res.locals["response"] = { id: question.id };
+        next();
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -117,7 +130,7 @@ router.get(
   (req: Request, res: Response, _next: NextFunction) => {
     QuestionCtrl.fetchAll({ quiz: req.params.id, owner: res.locals["account"]._id })
       .pipe(Streams.stringify())
-      .pipe(res.type("json"))
+      .pipe(res.type("json"));
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -150,11 +163,14 @@ router.post(
         }
 
         /* Add option to the question */
-        QuestionCtrl.addOption(question._id, req.body.value, req.body.valid).then(() => {
-          res.locals["response"] = { id: question.id };
-          next();
-        }).catch(next);
-      }).catch(next);
+        QuestionCtrl.addOption(question._id, req.body.value, req.body.valid)
+          .then(() => {
+            res.locals["response"] = { id: question.id };
+            next();
+          })
+          .catch(next);
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -177,7 +193,11 @@ router.put(
         /* Check if the question is simple selection and there is a valid option */
         if (question.type === QUESTION_TYPE.SIMPLE) {
           const validOption: any[] = question.options.filter((value: any) => value.valid);
-          if (req.body.valid && validOption?.length > 0 && validOption[0]._id.toString() !== req.params.option) {
+          if (
+            req.body.valid &&
+            validOption?.length > 0 &&
+            validOption[0]._id.toString() !== req.params.option
+          ) {
             return next({ boError: ERRORS.MULTIPLE_VALID_NOT_SUPPORTED });
           }
         }
@@ -187,8 +207,10 @@ router.put(
           .then((question: QuestionDocument) => {
             res.locals["response"] = { id: question.id };
             next();
-          }).catch(next);
-      }).catch(next);
+          })
+          .catch(next);
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success
@@ -212,11 +234,14 @@ router.delete(
         }
 
         /* Add option to the question */
-        QuestionCtrl.deleteOption(question._id, req.params.option).then(() => {
-          res.locals["response"] = { id: question.id };
-          next();
-        }).catch(next);
-      }).catch(next);
+        QuestionCtrl.deleteOption(question._id, req.params.option)
+          .then(() => {
+            res.locals["response"] = { id: question.id };
+            next();
+          })
+          .catch(next);
+      })
+      .catch(next);
   },
   ResponseHandler.error,
   ResponseHandler.success

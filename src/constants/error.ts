@@ -40,5 +40,5 @@ export const ERRORS = {
     value: 1006,
     str: "multiple valid not supported",
     status: HTTP_STATUS.HTTP_4XX_NOT_ACCEPTABLE
-  },
+  }
 };
