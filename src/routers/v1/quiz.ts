@@ -217,7 +217,7 @@ router.post(
       .catch(next);
   },
   (req: Request, res: Response, next: NextFunction) => {
-    if (!res.locals["account"]._id) {
+    if (!res.locals["account"]?._id) {
       return next();
     }
 
