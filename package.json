@@ -13,7 +13,7 @@
     "lint": "tsc --noEmit && eslint '*/**/*.ts' --fix",
     "test": "mocha --require ts-node/register tests/*.ts",
     "coverage": "nyc npm run test",
-    "apidoc": "apidoc -c ./ -i ./src/routers -o ./docs/api/"
+    "apidoc": "apidoc -c ./apidoc.json -i ./src/routers -o ./docs/api/"
   },
   "repository": {
     "type": "git",
